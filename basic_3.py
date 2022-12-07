@@ -52,7 +52,7 @@ def input_parser(input_file):
 def init_DPTable(DP_table, len_x, len_y):
     for i in range(len_y+1):
         DP_table[0][i] = i * COST_TABLE['delta']
-    for i in range(len_x):
+    for i in range(len_x+1):
         DP_table[i][0] = i * COST_TABLE['delta']
     return
 
