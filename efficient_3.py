@@ -14,6 +14,7 @@ COST_TABLE = {
 }
 
 total_cost = 0
+cost = 0
 
 def seq_generator(s_init, gen_list):
     '''
@@ -58,16 +59,19 @@ def basicAlign(str_1, str_2):
     A = [[0 for i in range(M+1)] for i in range(N+1)]
 
     for i in range(M+1):
-        A[0][1] = COST_TABLE['delta'] * i
+        A[0][i] = COST_TABLE['delta'] * i
     
     for j in range(N+1):
         A[j][0] = COST_TABLE['delta'] * j
 
     for i in range(1, N+1):
         for j in range(1, M+1):
-            A[i][j] = min(A[i-1][j-1] + COST_TABLE['alpha'][str_1[i-1]][str_2[j-1]],
-            min(A[i-1][j] + COST_TABLE['delta'], A[i][j-1] + COST_TABLE['delta']))
-    
+            A[i][j] = min(
+                    A[i-1][j-1] + COST_TABLE['alpha'][str_1[i-1]][str_2[j-1]],
+                    A[i-1][j] + COST_TABLE['delta'], 
+                    A[i][j-1] + COST_TABLE['delta']
+                )
+
     res_1 = ''
     res_2 = ''
     j = M
@@ -76,29 +80,29 @@ def basicAlign(str_1, str_2):
         x_i = str_1[i-1]
         y_j = str_2[j-1]
         if A[i][j] == A[i-1][j-1] + COST_TABLE['alpha'][x_i][y_j]:
-            res_1 += x_i
-            res_2 += y_j
+            res_1 = x_i + res_1
+            res_2 = y_j + res_2
             i -= 1
             j -= 1
         elif A[i][j] == A[i][j-1] + COST_TABLE['delta']:
-            res_1 += '_'
-            res_2 += y_j
-            i -= 1
+            res_1 = '_' + res_1
+            res_2 = y_j + res_2
+            j -= 1
         else:
-            res_1 += x_i
-            res_2 += '_'
+            res_1 = x_i + res_1
+            res_2 = '_' + res_2
             i -= 1
-
     while(i >= 1):
-        res_1 += str_1[(i - 1)]
-        res_2 += "_"
+        res_1 = str_1[i - 1] + res_1
+        res_2 = "_" + res_2
         i -= 1
     while(j >= 1):
-        res_1 += "_"
-        res_2 += str_2[j - 1]
-        j -=1
+        res_1 = "_" + res_1
+        res_2 = str_2[j - 1] + res_2
+        j -= 1
+    global cost
     cost = A[N][M]
-    return [res_1, res_2], cost
+    return [res_1, res_2]
 
 
 def dcAlign(str_1, str_2):
@@ -106,8 +110,9 @@ def dcAlign(str_1, str_2):
     N = len(str_2)
 
     if (M <= 2 or N <= 2):
-        tmp, cost = basicAlign(str_1, str_2)
+        tmp = basicAlign(str_1, str_2)
         global total_cost
+        global cost
         total_cost += cost
         return tmp
     
@@ -121,21 +126,29 @@ def dcAlign(str_1, str_2):
     for j in range(1, mid+1):
         f[0][1] = COST_TABLE['delta'] * j
         for i in range(1, M+1):
-            f[i][1] = min(COST_TABLE['alpha'][str_1[i-1]][str_2[j-1]] + f[i-1][0],
-                    min(COST_TABLE['delta'] + f[i-1][1], COST_TABLE['delta'] + f[i][0]))
+            f[i][1] = min(
+                COST_TABLE['alpha'][str_1[i-1]][str_2[j-1]] + f[i-1][0],
+                COST_TABLE['delta'] + f[i-1][1],
+                COST_TABLE['delta'] + f[i][0]
+            )
         for i in range(M+1):
             f[i][0] = f[i][1]
     
     str_1 = str_1[::-1]
     str_2 = str_2[::-1]
-
     for i in range(M+1):
-        g[i][0] = COST_TABLE['delta'] * (j - mid)
+        g[i][0] = COST_TABLE['delta'] * i
+
+    for j in range(mid+1, N+1):
+        g[0][1] = COST_TABLE['delta'] * (j - mid)
         for i in range(1, M+1):
             x_i = str_1[i-1]
             y_j = str_2[j - (mid + 1)]
-            g[i][1] = min(COST_TABLE['alpha'][x_i][y_j] + g[i-1][0],
-                        min(COST_TABLE['delta'] + g[i-1][1], COST_TABLE['delta'] + g[i][0]))
+            g[i][1] = min(
+                    COST_TABLE['alpha'][x_i][y_j] + g[i-1][0],
+                    COST_TABLE['delta'] + g[i-1][1], 
+                    COST_TABLE['delta'] + g[i][0]
+                )
         for i in range(M+1):
             g[i][0] = g[i][1]
 
@@ -145,15 +158,13 @@ def dcAlign(str_1, str_2):
     q = -1
     sum = sys.maxsize
     for i in range(M+1):
-        if f[i][1] + g[M-1][1] < sum:
+        if f[i][1] + g[M-i][1] < sum:
             q = i
             sum = f[i][1] + g[M-i][1]
-
-    P.append([q, mid])
     left = dcAlign(str_1[0: q], str_2[0: mid])
     right = dcAlign(str_1[q: M], str_2[mid: N])
-
     return [left[0]+right[0], left[1]+right[1]]
+  
             
 def main(input_file):
     input_X, input_Y = input_parser(input_file)
@@ -163,15 +174,11 @@ def main(input_file):
 
 if __name__ == "__main__":
     # parse input augments
-    # if len(sys.argv) != 3:
-    #     raise Exception("Must have 3 Augments!")
+    if len(sys.argv) != 3:
+        raise Exception("Must have 3 Augments!")
 
-    # input_file = sys.argv[1]
-    # output_file = sys.argv[2]
-    P = []
-
-    input_file = '/Users/chiyuwei/Documents/Github/CS570_CourseProject/refer_code/input111.txt'
-    output_file = '/Users/chiyuwei/Documents/Github/CS570_CourseProject/refer_code/output.txt'
+    input_file = sys.argv[1]
+    output_file = sys.argv[2]
 
     # process info. of memory
     process = psutil.Process()
