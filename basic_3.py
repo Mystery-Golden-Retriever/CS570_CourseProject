@@ -139,8 +139,8 @@ if __name__ == "__main__":
     memory_consumed = int(memory_info.rss/1024)
 
     with open(output_file, 'w') as fp:
-        fp.write(f"The optimal Cost is: {OPT_value}\n")
-        fp.write(f"The optimal alignment for X is: {alignments[0]}\n")
-        fp.write(f"The optimal alignment for Y is: {alignments[1]}\n")
-        fp.write(f"Total time cost: {(tok-tik) * 1000}ms\n")
-        fp.write(f"Total memory cost: {memory_consumed}KB\n")
+        fp.write(f"{OPT_value}\n")
+        fp.write(f"{alignments[0]}\n")
+        fp.write(f"{alignments[1]}\n")
+        fp.write(f"{(tok-tik) * 1000}\n")
+        fp.write(f"{memory_consumed}\n")
