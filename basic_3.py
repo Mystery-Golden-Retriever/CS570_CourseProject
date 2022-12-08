@@ -119,7 +119,7 @@ def main(input_file, output_file):
     return OPT_value, (alignment_X, alignment_Y)
 
 if __name__ == "__main__":
-    # parse input augments
+    # # parse input augments
     if len(sys.argv) != 3:
         raise Exception("Must have 3 Augments!")
 

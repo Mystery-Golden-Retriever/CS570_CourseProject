@@ -1,5 +1,5 @@
-The optimal Cost is: 810
-The optimal alignment for X is: ______CATCAGTGGTCAGTCATCAGTCACA______TCAGTG________________
-The optimal alignment for Y is: TTATTACA_______________________ATCGTTT_A__GCCGCAGGCGCAGCGCA
-Total time cost: 2.232789993286133ms
-Total memory cost: 12944KB
+The optimal Cost is: 660
+The optimal alignment for X is: ____ACACTGACTACTG_ACTGGTGACTAC_TGACTG_G
+The optimal alignment for Y is: TATTATAC_G_CTATTATAC__GCGAC_GCG_GAC_GCG
+Total time cost: 1.2328624725341797ms
+Total memory cost: 13088KB
